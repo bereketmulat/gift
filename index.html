@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A flower for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#0e1f1c;--bg2:#1c3b34;--ink:#f7ece4;--soft:#a9c2b8;--rose:#f2a7b3;--gold:#f5d68a}
+*{box-sizing:border-box;margin:0}
+body{min-height:100svh;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);font-family:'Karla',sans-serif;overflow-x:hidden}
+.stage{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1.6rem 1rem 2rem;text-align:center}
+.top{position:relative;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(2.8rem,11vw,4.4rem);line-height:1.1;color:var(--rose);padding:0 1.6rem}
+.top span{display:inline-block;opacity:0;transform:translateY(-22px) scale(.6);animation:drop .9s cubic-bezier(.2,.9,.3,1.3) forwards,shimmer 4s ease-in-out infinite;animation-delay:calc(var(--i)*.09s),calc(1.4s + var(--i)*.18s)}
+.top::before,.top::after{content:"✦";position:absolute;color:var(--gold);font-size:1rem;opacity:0;animation:twinkle 3s ease-in-out infinite}
+.top::before{left:0;top:.2rem}
+.top::after{right:0;bottom:.3rem;animation-delay:1.5s}
+@keyframes drop{to{opacity:1;transform:none}}
+@keyframes shimmer{0%,100%{color:var(--rose);text-shadow:0 0 14px rgba(242,167,179,.45)}50%{color:var(--gold);text-shadow:0 0 26px rgba(245,214,138,.9)}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(45deg)}}
+svg{width:min(88vw,420px);max-height:58svh;overflow:visible}
+.msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.3rem,4.5vw,1.8rem);line-height:1.4;min-height:4.2em;max-width:26ch;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.msg.out{opacity:0}
+button{font:inherit;font-weight:500;background:var(--rose);color:#3b1420;border:0;border-radius:99px;padding:.8rem 2.2rem;cursor:pointer;transition:transform .2s,background .2s}
+button:hover,button:focus-visible{transform:scale(1.05);background:var(--gold);outline:none}
+button:active{transform:scale(.97)}
+button[hidden]{display:none}
+.dots{display:flex;gap:.4rem;margin-top:.9rem;justify-content:center}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .4s}
+.dots i.on{background:var(--rose)}
+/* flower parts */
+.stem{fill:none;stroke:#5fae8a;stroke-width:7;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s ease-in-out}
+.leaf{fill:#4f9b79;transition:transform 1.6s cubic-bezier(.2,.9,.3,1.2)}
+.petal{fill:url(#pg);transition:transform 1.8s cubic-bezier(.2,.9,.3,1.15)}
+.core{fill:var(--gold);transition:r 1.5s ease}
+.seed{fill:#8a5a3c;transition:opacity 1s}
+.finale{max-width:36rem;margin:0 auto;padding:5rem 1.6rem 7rem;font-family:'Cormorant Garamond',serif;font-size:1.4rem;line-height:1.75;opacity:0;transform:translateY(24px);transition:opacity 1.6s,transform 1.6s}
+.finale.show{opacity:1;transform:none}
+.finale p{margin-bottom:1.3rem}
+.finale .days{color:var(--gold);font-size:1.7rem;text-align:center;margin-bottom:2rem}
+.finale .sign{color:var(--rose);font-style:italic;margin-top:2.2rem}
+.fall{position:fixed;top:-30px;width:12px;height:16px;border-radius:70% 0 70% 0;background:var(--rose);opacity:.8;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg) translateX(40px)}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important}.fall{display:none}.top span{animation:none;opacity:1;transform:none}.top::before,.top::after{display:none}}
+</style>
+</head>
+<body>
+<section class="stage">
+  <div class="top" id="top"></div>
+
+  <svg viewBox="0 0 400 600" role="img" aria-label="A flower growing">
+    <defs>
+      <radialGradient id="pg" cx="50%" cy="85%" r="90%">
+        <stop offset="0" stop-color="#f7c6ce"/><stop offset="1" stop-color="#e8768a"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="200" cy="566" rx="120" ry="16" fill="#3a2a22"/>
+    <circle class="seed" id="seed" cx="200" cy="558" r="7"/>
+    <path class="stem" id="stem" pathLength="1" d="M200 560 C190 450 215 340 200 240"/>
+    <path class="leaf" id="leafL" d="M0 0 C30-30 80-30 100-10 C80 20 30 20 0 0Z" style="transform:translate(197px,450px) scale(-.001,.001)"/>
+    <path class="leaf" id="leafR" d="M0 0 C30-30 80-30 100-10 C80 20 30 20 0 0Z" style="transform:translate(203px,390px) scale(.001)"/>
+    <g id="petals"></g>
+    <circle class="core" id="core" cx="200" cy="235" r="0"/>
+  </svg>
+
+  <div>
+    <p class="msg" id="msg">Every flower starts as a tiny seed.</p>
+    <button id="water">Water it</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="finale" id="finale"></section>
+
+<script>
+/* ============ EDIT THIS PART ============ */
+const CONFIG = {
+  name: "Pickle",
+  startDate: "2026-09-06",              // YYYY-MM-DD, about three weeks ago
+  // One message per petal (7 petals, add or remove freely)
+  petals: [
+    "From the first conversation, I knew I wanted more of them.",
+    "Your smile is the best part of my day.",
+    "I love how easy it is to be myself around you.",
+    "You make me laugh in ways I didn't expect.",
+    "Every time my phone lights up and it's you, I grin like an idiot.",
+    "Three weeks in, and I'm already excited for what's next.",
+    "I'm so glad I met you, Makayla."
+  ],
+  letter: [
+    "It's only been a few weeks, but you've already made my days brighter.",
+    "I made this flower for you because I wanted to give you something that grows, just like this feels like it's growing.",
+    "I can't wait to see what blooms next with you."
+  ]
+};
+/* ========================================= */
+
+const $ = id => document.getElementById(id);
+$("top").innerHTML = ("for " + CONFIG.name).split("").map((ch, i) =>
+  `<span style="--i:${i}">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
+$("top").setAttribute("aria-label", "for " + CONFIG.name);
+document.title = "A flower for " + CONFIG.name;
+
+const N = CONFIG.petals.length;
+const growth = ["A little water, a little patience…", "Look, it's reaching for the light.", "A bud. Something lovely is coming."];
+const total = 3 + N;
+let step = 0, busy = false;
+
+// build petals (closed, scale 0), opened in a spread-out order
+const petalG = $("petals"), petalEls = [];
+for (let i = 0; i < N; i++){
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "petal");
+  p.setAttribute("d", "M0 0C-30-30-24-88 0-104C24-88 30-30 0 0Z");
+  const angle = ((i * 3) % N) * 360 / N;
+  p.dataset.angle = angle;
+  p.style.transform = `translate(200px,235px) rotate(${angle}deg) scale(0)`;
+  petalG.appendChild(p); petalEls.push(p);
+}
+// progress dots
+for (let i = 0; i < total; i++) $("dots").appendChild(document.createElement("i"));
+
+function say(t){
+  const m = $("msg"); m.classList.add("out");
+  setTimeout(() => { m.textContent = t; m.classList.remove("out"); }, 350);
+}
+
+function next(){
+  if (busy) return; busy = true; setTimeout(() => busy = false, 1500);
+  step++;
+  $("dots").children[step - 1].classList.add("on");
+  if (step === 1){ $("seed").style.opacity = 0; $("stem").style.strokeDashoffset = 0; }
+  if (step === 2){ $("leafL").style.transform = "translate(197px,450px) scale(-1,1)"; $("leafR").style.transform = "translate(203px,390px) scale(1)"; }
+  if (step === 3){ $("core").setAttribute("r", 14); }
+  if (step > 3){
+    const p = petalEls[step - 4];
+    p.style.transform = `translate(200px,235px) rotate(${p.dataset.angle}deg) scale(1)`;
+    $("core").setAttribute("r", 14 + (step - 3) * 1.6);
+  }
+  say(step <= 3 ? growth[step - 1] : CONFIG.petals[step - 4]);
+  if (step === total){ $("water").hidden = true; setTimeout(finish, 2600); }
+  else if (step === total - 1) $("water").textContent = "One more";
+  else if (step === 3) $("water").textContent = "Keep going";
+}
+
+function finish(){
+  const days = Math.max(0, Math.floor((Date.now() - new Date(CONFIG.startDate)) / 864e5));
+  $("finale").innerHTML =
+    `<p class="days">${days} days since we started, and counting</p>` +
+    CONFIG.letter.map(p => `<p>${p}</p>`).join("");
+  requestAnimationFrame(() => $("finale").classList.add("show"));
+  for (let i = 0; i < 16; i++){
+    const f = document.createElement("div");
+    f.className = "fall";
+    f.style.left = Math.random() * 100 + "vw";
+    f.style.animationDuration = 6 + Math.random() * 6 + "s";
+    f.style.animationDelay = Math.random() * 3 + "s";
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 16000);
+  }
+  setTimeout(() => $("finale").scrollIntoView({behavior: "smooth", block: "start"}), 1200);
+}
+
+$("water").addEventListener("click", next);
+</script>
+</body>
+</html>
